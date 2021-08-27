@@ -1,0 +1,6 @@
+
+
+customMean <- function(vector) {
+    vector
+}
+
