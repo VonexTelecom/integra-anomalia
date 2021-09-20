@@ -8,9 +8,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +24,9 @@ import com.br.integra.utils.DateUtils;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
-
-import ch.qos.logback.core.recovery.ResilientSyslogOutputStream;
 
 
 @Service
@@ -124,7 +118,6 @@ public class AnomaliaService {
 				try {
 					valores.addAll(identificadorAnomalias(estatisticaBruto, dataAtual));
 					quantidadeAnomalias.add(quantidadeAnomalias(estatisticaBruto));
-					System.out.println(quantidadeAnomalias);
 					estatisticaBruto.clear();
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -139,7 +132,6 @@ public class AnomaliaService {
 			.quantidade(quantidadeAnomalias.stream().reduce(0, (a, b) -> a+b))
 			.valor(valores)
 			.build();
-		System.out.println(dto);
 		return dto;
 	}
 	
