@@ -12,7 +12,7 @@ pipeline {
         }
         stage ('run app') {
             steps {
-                sh 'java -jar -Xmx512M target/integra-anomalia-0.0.1-SNAPSHOT.jar'
+                sh 'java -jar -Xmx512M target/integra-anomalia-0.0.1-SNAPSHOT.jar &'
             }
         }
       
