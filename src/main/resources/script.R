@@ -1,6 +1,0 @@
-
-
-customMean <- function(vector) {
-    vector
-}
-
