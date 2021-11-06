@@ -1,26 +1,34 @@
 package com.br.integra.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URISyntaxException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.br.integra.exception.BusinessException;
-import com.br.integra.filter.EstatisticaFilter;
+import com.br.integra.filter.FiltroEstatistica;
+import com.br.integra.model.Cliente;
 import com.br.integra.model.EstatisticaDiscador;
+import com.br.integra.model.ProcessamentoEstatisticas;
 import com.br.integra.model.VariableObject;
 import com.br.integra.output.dto.AnomaliaOutputDto;
 import com.br.integra.output.dto.ValorAnomalia;
-import com.br.integra.repository.AnomaliaEstatisticaRepository;
-import com.br.integra.utils.DateUtils;
+import com.br.integra.repository.AnomaliaRepository;
+import com.br.integra.repository.ClienteRepository;
+import com.br.integra.utils.NomeCollectionUtils;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,151 +39,129 @@ import com.github.rcaller.rstuff.RCode;
 
 @Service
 public class AnomaliaService {
+	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 	
 	@Autowired
-	private AnomaliaEstatisticaRepository repository;
+	private AnomaliaRepository repository;
 	
+	@Autowired
+	private ClienteRepository clienteRepository;
 	
+	@Autowired
+	private ProcessamentoEstatisticaService processamentoEstatisticaService;
 	
-	
-	public AnomaliaOutputDto Anomalias(EstatisticaFilter filter, Long clienteId) throws IOException, URISyntaxException {
+	public void run(ProcessamentoEstatisticas processamentoEstatisticas) throws IOException, URISyntaxException {
 		Long startTime = System.currentTimeMillis();
+		LocalDateTime fimMinuto = processamentoEstatisticas.getMinuto();
 		
-		LocalDateTime dataInicial;
-		LocalDateTime dataFinal;
-		if((filter.getDataInicial()!=null && filter.getDataFinal()!=null) && filter.getDataInicial().after(filter.getDataFinal())) {
-			throw new BusinessException("A data Inicial não pode ser maior que a final");
-		}	
-		else if(filter.getPeriodoEnum() != null) {
-			List<LocalDateTime> datas = DateUtils.converterEnumToData(filter.getPeriodoEnum());
-			dataInicial = datas.get(0);
-			dataFinal = datas.get(1);
-			
-		}else if(filter.getDataInicial()!=null && filter.getDataFinal()!=null) {
-			 dataInicial = filter.getDataInicial().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-			 dataFinal = filter.getDataFinal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-			 
-		}else if(filter.getTipoEstatistica() == null) {
-			throw new BusinessException("Selecione um tipo de estatistica");
-		}
-		else {
-			throw new BusinessException("Selecione um periodo ou uma data incial e final.");
-		}
 		
-		LocalDate dataAtualPeriodo = LocalDate.of(dataInicial.getYear(), dataInicial.getMonthValue(), dataInicial.getDayOfMonth());
-		LocalDate dataFinalFormatada = LocalDate.of(dataFinal.getYear(), dataFinal.getMonthValue(), dataFinal.getDayOfMonth());
-		List<LocalDate> dataIntervalo = DateUtils.IntervaloData(dataAtualPeriodo, dataFinalFormatada);
-		AnomaliaOutputDto dto = new AnomaliaOutputDto();
-		List<ValorAnomalia> valores = new ArrayList<>();
-		List<EstatisticaDiscador> estatisticaBruto = new ArrayList<>();
-		List<Integer> quantidadeAnomalias = new ArrayList<>();
+		LocalDateTime inicioMinuto = fimMinuto.minusHours(3);
+		List<Cliente> clienteId = clienteRepository.findAll();
+		ExecutorService executorService = Executors.newFixedThreadPool(40);
 		
-		dataIntervalo.stream().forEachOrdered(dataAtual -> {
+		clienteId.stream().parallel().forEachOrdered(cliente -> executorService.execute(()->{
 			try {
-			
-			if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) == 0) {
-				EstatisticaFilter filtro = EstatisticaFilter.builder()
-						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
-						.modalidade(filter.getModalidade())
-						.discador(filter.getDiscador())
-						.operadora(filter.getOperadora())
-						.unidadeAtendimento(filter.getUnidadeAtendimento())
-						.tipoEstatistica(filter.getTipoEstatistica())
-						.build();
-
-				estatisticaBruto.addAll(repository.findtipoEstatisticaInicial(dataAtual, filtro,clienteId));
-				
-			}else if(dataAtual.compareTo(dataFinalFormatada) < 0 && dataAtual.compareTo(dataInicial.atZone(ZoneId.systemDefault()).toLocalDate()) != 0) {
-				EstatisticaFilter filtro = EstatisticaFilter.builder()
-						.modalidade(filter.getModalidade())
-						.discador(filter.getDiscador())
-						.operadora(filter.getOperadora())
-						.unidadeAtendimento(filter.getUnidadeAtendimento())
-						.tipoEstatistica(filter.getTipoEstatistica())
-						.build();
-				
-				estatisticaBruto.addAll(repository.findtipoEstatistica(dataAtual, filtro,clienteId));
-				
-			}else {
-				EstatisticaFilter filtro = EstatisticaFilter.builder()
-						.dataInicial(Date.from(dataInicial.atZone(ZoneId.systemDefault()).toInstant()))
-						.dataFinal(Date.from(dataFinal.atZone(ZoneId.systemDefault()).toInstant()))
-						.modalidade(filter.getModalidade())
-						.discador(filter.getDiscador())
-						.operadora(filter.getOperadora())
-						.unidadeAtendimento(filter.getUnidadeAtendimento())
-						.tipoEstatistica(filter.getTipoEstatistica())
-						.build();
+					estatisticaPorMinuto(cliente.getId().intValue(), inicioMinuto, fimMinuto);		
+					Long endTime = System.currentTimeMillis();
+					log.info("Tempo de Execução total cliente " + cliente.getNome() + "  " + (float) (endTime - startTime) / 1000 + "s");
+					processamentoEstatisticaService.finalizarProcessamento(processamentoEstatisticas);					
+			}catch (Exception e) {
+				processamentoEstatisticaService.falhaProcessamento(processamentoEstatisticas);
+				e.printStackTrace();
+			}
+		}));
+		try {
+			executorService.shutdown();
+			executorService.awaitTermination(3000, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+	}
 	
-				estatisticaBruto.addAll(repository.findtipoEstatisticaFinal(dataAtual, filtro,clienteId));
-			} 
-			
-			}catch(Exception e) {
-				System.out.println(e.getStackTrace());
-			}
-			
-			if(estatisticaBruto != null) {
-				try {
-					valores.addAll(identificadorAnomalias(estatisticaBruto, dataAtual));
-					quantidadeAnomalias.add(quantidadeAnomalias(estatisticaBruto));
-					estatisticaBruto.clear();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-			}
-		});
+	public void estatisticaPorMinuto(Integer clienteId, LocalDateTime inicioMinuto, LocalDateTime fimMinuto) throws IOException, URISyntaxException {
+		String nomeCollection = NomeCollectionUtils.nomeCollectionAnomalia(clienteId);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_discadas"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_desconectadas_discador"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas_com_mais_de_30_segundos_desc_origem"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_com_segundo_desc_destino"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_com_segundo_desc_origem"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "max_caps_sainte"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_ddd"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "estatistica_acd"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_mais_3_segundos_desconectadas_pela_origem"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_mais_3_segundos_desconectadas_pela_destino"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_numero_invalido"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas_acd"), nomeCollection);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "media_caps_sainte"), nomeCollection);
 		
-		dto = AnomaliaOutputDto.builder()
-			.tipoEstatistica(filter.getTipoEstatistica().getValor())
-			.quantidade(quantidadeAnomalias.stream().reduce(0, (a, b) -> a+b))
-			.valor(valores)
-			.build();
+	}
+	
+	
+	public List<AnomaliaOutputDto> obterEstatistica(Integer clienteId, LocalDateTime inicioMinuto, LocalDateTime fimMinuto, String tipoEstatistica) throws IOException, URISyntaxException {
+		HashMap<FiltroEstatistica, ArrayList<EstatisticaDiscador>>estatisticas = repository.findTipoEstatisticaSumarizada(inicioMinuto, fimMinuto, tipoEstatistica, clienteId);
+		List<AnomaliaOutputDto> dto = new ArrayList<>();
+		if(estatisticas.size() != 0) {
+			estatisticas.forEach((key, value) -> {
+			ValorAnomalia anomalia;
+			try {
+				System.out.println(value);
+				anomalia = identificadorAnomalias(value);
+				if(anomalia != null) {
+					AnomaliaOutputDto dado = AnomaliaOutputDto.builder()
+							.tipoEstatistica("chamadas_discadas")
+							.clienteId(clienteId)
+							.data(fimMinuto)
+							.quantidade(anomalia.getValor())
+							.valorEsperado(anomalia.getValorEsperado())
+							.porcentual(anomalia.getPorcentagem())
+							.build();
+					BeanUtils.copyProperties(key, dado, "tipoEstatistica", "clienteId", "data", "quantidade","valorEsperado", "porcentual");
+					dto.add(dado);
+				}
+			} catch (IOException | URISyntaxException e) {
+				e.printStackTrace();
+			}});
+		}
 		return dto;
 	}
 	
 	
-	public List<ValorAnomalia> identificadorAnomalias(List<EstatisticaDiscador> estatisticas, LocalDate dataAtual) throws IOException, URISyntaxException {
+	public ValorAnomalia identificadorAnomalias(List<EstatisticaDiscador> estatisticas) throws IOException, URISyntaxException {
 		int[] values = estatisticas.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
-		List<ValorAnomalia> valorAnomalias = new ArrayList<>();
-		if(values.length != 0) {
-			List<Integer> resultado = mean(values).stream().map(v -> Integer.parseInt(v)).collect(Collectors.toList());	
-			for (Integer valor : resultado) {
-				LocalDateTime dataAnomalia;
-				dataAnomalia = LocalDateTime.of(dataAtual, estatisticas.get(valor-1).getData());
-				ValorAnomalia valorAnomalia = ValorAnomalia.builder()
-						.data(dataAnomalia.toString())
-						.valor(values[valor.intValue()-1]).build();
-				valorAnomalias.add(valorAnomalia);
+		
+		ValorAnomalia valorAnomalia = new ValorAnomalia();
+		if(values.length != 0 && values.length > 10) {
+			HashMap<String, String> resultado = mean(values);
+			for (String valor : resultado.keySet()) {
+				Integer valorInt = Integer.valueOf(valor);
+				if(valorInt == (values.length)) {
+					BigDecimal valorBig = BigDecimal.valueOf(Double.valueOf(values[valorInt.intValue()-1]));
+					BigDecimal valorEsperadoBig = BigDecimal.valueOf(Double.valueOf(resultado.get(valor)));
+					
+					valorAnomalia = ValorAnomalia.builder()
+							.valor(valorBig)
+							.valorEsperado(valorEsperadoBig)
+							.porcentagem((valorEsperadoBig.multiply(BigDecimal.valueOf(100)).divide(valorBig, 2, RoundingMode.HALF_UP))).build();
+					return valorAnomalia;
+				}
 				
 			}
 		}
-		return valorAnomalias;
+		return null;
 
 	}
-	public Integer quantidadeAnomalias(List<EstatisticaDiscador> estatisticas)  {
-		int[] values = estatisticas.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
-		List<Integer> resultado = new ArrayList<>();
-		try {
-			resultado.addAll(mean(values).stream().map(v -> Integer.parseInt(v)).collect(Collectors.toList()));
-		} catch (IOException | URISyntaxException e1) {
-			e1.printStackTrace();
-		}
-		return resultado.size();
-
-	}
-    public List<String> mean(int[] values) throws IOException, URISyntaxException {
+    public HashMap<String,String> mean(int[] values) throws IOException, URISyntaxException {
     RCode code = RCode.create();
     RCaller caller = RCaller.create();
     
-    code.addIntArray("x", values);
     code.R_require("forecast");
+    code.addIntArray("x", values);
     
 
     code.addRCode("myResult <- tsoutliers(x)");
-
     caller.setRCode(code);
+    
     caller.runAndReturnResult("myResult");
     
 
@@ -185,7 +171,7 @@ public class AnomaliaService {
     		
     }	
     
-    public List<String> extrairResultado(String xml) throws IOException {
+    public HashMap<String,String> extrairResultado(String xml) throws IOException {
  
     	XmlMapper xmlMapper = new XmlMapper();
     	JsonNode node = xmlMapper.readTree(xml.getBytes());
@@ -199,7 +185,16 @@ public class AnomaliaService {
     	String json = jsonMapper.writeValueAsString(node);
     	
     	VariableObject object = jsonMapper.readValue(json, VariableObject.class);
-    	List<String> v = object.getVariable().get(0).getV();
-    	return v;
+    	
+    	HashMap<String, String> valor = new HashMap<String, String>();
+    	
+    	Integer quantidade = object.getVariable().get(0).getV().size();
+    	for(int i = 0; i < quantidade; i++) {
+    		String ind = object.getVariable().get(0).getV().get(i);
+    		String rep = object.getVariable().get(1).getV().get(i);
+    		valor.put(ind, rep);
+    	}
+    	
+    	return valor;
     }
 }

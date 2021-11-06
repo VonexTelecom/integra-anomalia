@@ -1,6 +1,6 @@
 package com.br.integra.output.dto;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -15,9 +15,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ValorAnomalia {
 	
-	@JsonProperty("hora da anomalia")
-	private String data;
-	
 	@JsonProperty("Valor da Anomalia")
-	private double valor;
+	private BigDecimal valor;
+	
+	private BigDecimal porcentagem;
+	
+	private BigDecimal valorEsperado;
+	
 }
