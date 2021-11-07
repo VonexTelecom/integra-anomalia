@@ -20,11 +20,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.br.integra.filter.FiltroEstatistica;
+import com.br.integra.filter.FiltroEstatisticaErros;
+import com.br.integra.filter.FiltroEstatisticaNumeros;
 import com.br.integra.model.Cliente;
 import com.br.integra.model.EstatisticaDiscador;
+import com.br.integra.model.Numeros;
+import com.br.integra.model.OutrosErros;
 import com.br.integra.model.ProcessamentoEstatisticas;
 import com.br.integra.model.VariableObject;
 import com.br.integra.output.dto.AnomaliaOutputDto;
+import com.br.integra.output.dto.AnomaliaOutputDtoErros;
+import com.br.integra.output.dto.AnomaliaOutputDtoNumeros;
 import com.br.integra.output.dto.ValorAnomalia;
 import com.br.integra.repository.AnomaliaRepository;
 import com.br.integra.repository.ClienteRepository;
@@ -57,7 +63,7 @@ public class AnomaliaService {
 		
 		LocalDateTime inicioMinuto = fimMinuto.minusHours(3);
 		List<Cliente> clienteId = clienteRepository.findAll();
-		ExecutorService executorService = Executors.newFixedThreadPool(40);
+		ExecutorService executorService = Executors.newFixedThreadPool(8);
 		
 		clienteId.stream().parallel().forEachOrdered(cliente -> executorService.execute(()->{
 			try {
@@ -79,37 +85,55 @@ public class AnomaliaService {
 	}
 	
 	public void estatisticaPorMinuto(Integer clienteId, LocalDateTime inicioMinuto, LocalDateTime fimMinuto) throws IOException, URISyntaxException {
-		String nomeCollection = NomeCollectionUtils.nomeCollectionAnomalia(clienteId);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_discadas"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_desconectadas_discador"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas_com_mais_de_30_segundos_desc_origem"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_com_segundo_desc_destino"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_com_segundo_desc_origem"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "max_caps_sainte"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_ddd"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "estatistica_acd"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_mais_3_segundos_desconectadas_pela_origem"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_mais_3_segundos_desconectadas_pela_destino"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_numero_invalido"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas_acd"), nomeCollection);
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "media_caps_sainte"), nomeCollection);
+		String nomeCollectionAnomalia = NomeCollectionUtils.nomeCollectionAnomalia(clienteId);
+		String nomeCollectionAnomaliaErros = NomeCollectionUtils.nomeCollectionAnomaliaErros(clienteId);
+		String nomeCollectionAnomaliaNumeros = NomeCollectionUtils.nomeCollectionAnomaliaNumeros(clienteId);
+		
+		
+		String nomeCollectionErros = NomeCollectionUtils.nomeCollectionErros(clienteId, fimMinuto.toLocalDate());
+		String nomeCollectionNumeros = NomeCollectionUtils.nomeCollectionNumeros(clienteId, fimMinuto.toLocalDate());
+		String nomeCollectionEstatistica = NomeCollectionUtils.nomeCollection(clienteId, fimMinuto.toLocalDate());
+		
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_discadas", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_desconectadas_discador", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas_com_mais_de_30_segundos_desc_origem", nomeCollectionEstatistica), nomeCollectionAnomalia);
+	//	repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_com_segundo_desc_destino", nomeCollectionEstatistica), nomeCollectionAnomalia);
+	//	repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_com_segundo_desc_origem", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "max_caps_sainte", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_ddd", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "estatistica_acd", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_mais_3_segundos_desconectadas_pela_origem", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_mais_3_segundos_desconectadas_pela_destino", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_numero_invalido", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas_acd", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "media_caps_sainte", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_recebidas", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_atendidas", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		
+		repository.salvarErros(obterEstatisticaErros(clienteId, inicioMinuto, fimMinuto,  nomeCollectionErros), nomeCollectionAnomaliaErros);
+		
+		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numeros_discados", nomeCollectionNumeros), nomeCollectionAnomaliaNumeros);
+		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numeros_completados", nomeCollectionNumeros), nomeCollectionAnomaliaNumeros);
+		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numero_desc_destino", nomeCollectionNumeros), nomeCollectionAnomaliaNumeros);
+		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numero_desc_origem", nomeCollectionNumeros), nomeCollectionAnomaliaNumeros);
+		
 		
 	}
 	
 	
-	public List<AnomaliaOutputDto> obterEstatistica(Integer clienteId, LocalDateTime inicioMinuto, LocalDateTime fimMinuto, String tipoEstatistica) throws IOException, URISyntaxException {
-		HashMap<FiltroEstatistica, ArrayList<EstatisticaDiscador>>estatisticas = repository.findTipoEstatisticaSumarizada(inicioMinuto, fimMinuto, tipoEstatistica, clienteId);
+	public List<AnomaliaOutputDto> obterEstatistica(Integer clienteId, LocalDateTime inicioMinuto, LocalDateTime fimMinuto, String tipoEstatistica, String nomeCollection) throws IOException, URISyntaxException {
+		HashMap<FiltroEstatistica, ArrayList<EstatisticaDiscador>>estatisticas = repository.findTipoEstatistica(inicioMinuto, fimMinuto, tipoEstatistica, clienteId, nomeCollection);
 		List<AnomaliaOutputDto> dto = new ArrayList<>();
 		if(estatisticas.size() != 0) {
 			estatisticas.forEach((key, value) -> {
 			ValorAnomalia anomalia;
 			try {
-				System.out.println(value);
-				anomalia = identificadorAnomalias(value);
+				int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
+				anomalia = identificadorAnomalias(values);
 				if(anomalia != null) {
 					AnomaliaOutputDto dado = AnomaliaOutputDto.builder()
-							.tipoEstatistica("chamadas_discadas")
+							.tipoEstatistica(tipoEstatistica)
 							.clienteId(clienteId)
 							.data(fimMinuto)
 							.quantidade(anomalia.getValor())
@@ -118,6 +142,67 @@ public class AnomaliaService {
 							.build();
 					BeanUtils.copyProperties(key, dado, "tipoEstatistica", "clienteId", "data", "quantidade","valorEsperado", "porcentual");
 					dto.add(dado);
+					log.info("\nAnomalia Identificada no cliente "+clienteId+" na estatistica: "+tipoEstatistica +"\tValor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
+				}
+			} catch (IOException | URISyntaxException e) {
+				e.printStackTrace();
+			}});
+		}
+		return dto;
+	}
+	
+	public List<AnomaliaOutputDtoErros> obterEstatisticaErros(Integer clienteId, LocalDateTime inicioMinuto, LocalDateTime fimMinuto, String nomeCollection) throws IOException, URISyntaxException {
+		HashMap<FiltroEstatisticaErros, ArrayList<OutrosErros>>estatisticas = repository.findTipoEstatisticaErros(inicioMinuto, fimMinuto, clienteId, nomeCollection);
+		List<AnomaliaOutputDtoErros> dto = new ArrayList<>();
+		if(estatisticas.size() != 0) {
+			estatisticas.forEach((key, value) -> {
+			ValorAnomalia anomalia;
+			try {
+				int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
+				anomalia = identificadorAnomalias(values);
+				if(anomalia != null) {
+					AnomaliaOutputDtoErros dado = AnomaliaOutputDtoErros.builder()
+							.descricaoErro(key.getDescricaoErro())
+							.statusChamada(key.getStatusChamada())
+							.clienteId(clienteId)
+							.data(fimMinuto)
+							.quantidade(anomalia.getValor())
+							.valorEsperado(anomalia.getValorEsperado())
+							.porcentual(anomalia.getPorcentagem())
+							.build();
+					BeanUtils.copyProperties(key, dado, "descricaoErro", "statusChamada",  "clienteId", "data", "quantidade","valorEsperado", "porcentual");
+					dto.add(dado);
+					log.info("\nAnomalia Identificada em erros no cliente "+clienteId+":\t" +"Valor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
+				}
+			} catch (IOException | URISyntaxException e) {
+				e.printStackTrace();
+			}});
+		}
+		return dto;
+	}
+	
+	public List<AnomaliaOutputDtoNumeros> obterEstatisticaNumeros(Integer clienteId, LocalDateTime inicioMinuto, LocalDateTime fimMinuto, String tipoEstatistica, String nomeCollection) throws IOException, URISyntaxException {
+		HashMap<FiltroEstatisticaNumeros, ArrayList<Numeros>>estatisticas = repository.findTipoNumeros(inicioMinuto, fimMinuto,  tipoEstatistica, clienteId,nomeCollection);
+		List<AnomaliaOutputDtoNumeros> dto = new ArrayList<>();
+		if(estatisticas.size() != 0) {
+			estatisticas.forEach((key, value) -> {
+			ValorAnomalia anomalia;
+			try {
+				int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
+				anomalia = identificadorAnomalias(values);
+				if(anomalia != null) {
+					AnomaliaOutputDtoNumeros dado = AnomaliaOutputDtoNumeros.builder()
+							.clienteId(clienteId)
+							.data(fimMinuto)
+							.tipoEstatistica(tipoEstatistica)
+							.numero(key.getNumero())
+							.quantidade(anomalia.getValor())
+							.valorEsperado(anomalia.getValorEsperado())
+							.porcentual(anomalia.getPorcentagem())
+							.build();
+					BeanUtils.copyProperties(key, dado, "numeros","tipoEstatistica", "clienteId", "data", "quantidade","valorEsperado", "porcentual");
+					dto.add(dado);
+					log.info("\nAnomalia Identificada em numeros no cliente "+clienteId+" na estatistica: "+tipoEstatistica+"\tValor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
 				}
 			} catch (IOException | URISyntaxException e) {
 				e.printStackTrace();
@@ -127,23 +212,26 @@ public class AnomaliaService {
 	}
 	
 	
-	public ValorAnomalia identificadorAnomalias(List<EstatisticaDiscador> estatisticas) throws IOException, URISyntaxException {
-		int[] values = estatisticas.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
-		
+	
+	
+	
+	public ValorAnomalia identificadorAnomalias(int[] values) throws IOException, URISyntaxException {
 		ValorAnomalia valorAnomalia = new ValorAnomalia();
-		if(values.length != 0 && values.length > 10) {
+		if(values.length != 0) {
 			HashMap<String, String> resultado = mean(values);
+			
 			for (String valor : resultado.keySet()) {
 				Integer valorInt = Integer.valueOf(valor);
-				if(valorInt == (values.length)) {
+				if(valorInt == (values.length) && values.length > 10) {
 					BigDecimal valorBig = BigDecimal.valueOf(Double.valueOf(values[valorInt.intValue()-1]));
 					BigDecimal valorEsperadoBig = BigDecimal.valueOf(Double.valueOf(resultado.get(valor)));
-					
 					valorAnomalia = ValorAnomalia.builder()
 							.valor(valorBig)
 							.valorEsperado(valorEsperadoBig)
 							.porcentagem((valorEsperadoBig.multiply(BigDecimal.valueOf(100)).divide(valorBig, 2, RoundingMode.HALF_UP))).build();
-					return valorAnomalia;
+					if(valorBig.compareTo(valorEsperadoBig) != 0) {
+						return valorAnomalia;												
+					}
 				}
 				
 			}
@@ -151,6 +239,10 @@ public class AnomaliaService {
 		return null;
 
 	}
+	
+	
+	
+	
     public HashMap<String,String> mean(int[] values) throws IOException, URISyntaxException {
     RCode code = RCode.create();
     RCaller caller = RCaller.create();

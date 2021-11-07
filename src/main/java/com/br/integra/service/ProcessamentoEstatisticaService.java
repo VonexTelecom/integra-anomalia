@@ -22,7 +22,7 @@ public class ProcessamentoEstatisticaService {
 	public ProcessamentoEstatisticas criarProcessamento() {
 		ProcessamentoEstatisticas processamentoEstatisticas = obterUltimoProcessamento();
 		LocalDateTime dataInicioProximaLeitura = processamentoEstatisticas.getMinuto().plusMinutes(1);
-		if (dataInicioProximaLeitura.isBefore(LocalDateTime.now().minusMinutes(3))) {
+		if (dataInicioProximaLeitura.isBefore(LocalDateTime.now().minusMinutes(4))) {
 			ProcessamentoEstatisticas novaProcessoLeitura = new ProcessamentoEstatisticas();
 			novaProcessoLeitura.setProcessoID(null);
 			novaProcessoLeitura.setMinuto(dataInicioProximaLeitura);

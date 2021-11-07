@@ -3,8 +3,6 @@ package com.br.integra.output.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,15 +11,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AnomaliaOutputDto {
+public class AnomaliaOutputDtoErros {
 	
-	@JsonProperty("Tipo da estatística")
-	private String tipoEstatistica;
 	private Integer clienteId;
 	private LocalDateTime data;
 	private BigDecimal porcentual;
 	private BigDecimal quantidade;
 	private BigDecimal valorEsperado;
+	private String descricaoErro;
+	private String statusChamada;
 	private String modalidade;
 	private String operadora;
 	private String discador;
