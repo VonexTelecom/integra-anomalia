@@ -63,7 +63,7 @@ public class AnomaliaService {
 		
 		
 		LocalDateTime inicioMinuto = fimMinuto.minusHours(3);
-		List<Cliente> clienteId = Arrays.asList(clienteRepository.findAll().get(1));
+		List<Cliente> clienteId = clienteRepository.findAll();
 		ExecutorService executorService = Executors.newFixedThreadPool(8);
 		
 		clienteId.stream().parallel().forEachOrdered(cliente -> executorService.execute(()->{
