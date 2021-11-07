@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -62,7 +63,7 @@ public class AnomaliaService {
 		
 		
 		LocalDateTime inicioMinuto = fimMinuto.minusHours(3);
-		List<Cliente> clienteId = clienteRepository.findAll();
+		List<Cliente> clienteId = Arrays.asList(clienteRepository.findAll().get(1));
 		ExecutorService executorService = Executors.newFixedThreadPool(8);
 		
 		clienteId.stream().parallel().forEachOrdered(cliente -> executorService.execute(()->{
@@ -128,26 +129,27 @@ public class AnomaliaService {
 		if(estatisticas.size() != 0) {
 			estatisticas.forEach((key, value) -> {
 			ValorAnomalia anomalia;
-			try {
-				int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
-				anomalia = identificadorAnomalias(values);
-				if(anomalia != null) {
-					AnomaliaOutputDto dado = AnomaliaOutputDto.builder()
-							.tipoEstatistica(tipoEstatistica)
-							.clienteId(clienteId)
-							.data(fimMinuto)
-							.quantidade(anomalia.getValor())
-							.valorEsperado(anomalia.getValorEsperado())
-							.porcentual(anomalia.getPorcentagem())
-							.build();
-					BeanUtils.copyProperties(key, dado, "tipoEstatistica", "clienteId", "data", "quantidade","valorEsperado", "porcentual");
-					dto.add(dado);
-					log.info("\nAnomalia Identificada no cliente "+clienteId+" na estatistica: "+tipoEstatistica +"\tValor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
-				}
-			} catch (IOException | URISyntaxException e) {
-				e.printStackTrace();
-			}});
-		}
+			if(value.size() > 10) {
+					try {
+						int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
+						anomalia = identificadorAnomalias(values);
+						if(anomalia != null) {
+							AnomaliaOutputDto dado = AnomaliaOutputDto.builder()
+									.tipoEstatistica(tipoEstatistica)
+									.clienteId(clienteId)
+									.data(fimMinuto)
+									.quantidade(anomalia.getValor())
+									.valorEsperado(anomalia.getValorEsperado())
+									.porcentual(anomalia.getPorcentagem())
+									.build();
+							BeanUtils.copyProperties(key, dado, "tipoEstatistica", "clienteId", "data", "quantidade","valorEsperado", "porcentual");
+							dto.add(dado);
+							log.info("\nAnomalia Identificada no cliente "+clienteId+" na estatistica: "+tipoEstatistica +"\tValor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
+						}
+					} catch (IOException | URISyntaxException e) {
+						e.printStackTrace();
+					}}});
+			}
 		return dto;
 	}
 	
@@ -156,27 +158,28 @@ public class AnomaliaService {
 		List<AnomaliaOutputDtoErros> dto = new ArrayList<>();
 		if(estatisticas.size() != 0) {
 			estatisticas.forEach((key, value) -> {
-			ValorAnomalia anomalia;
-			try {
-				int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
-				anomalia = identificadorAnomalias(values);
-				if(anomalia != null) {
-					AnomaliaOutputDtoErros dado = AnomaliaOutputDtoErros.builder()
-							.descricaoErro(key.getDescricaoErro())
-							.statusChamada(key.getStatusChamada())
-							.clienteId(clienteId)
-							.data(fimMinuto)
-							.quantidade(anomalia.getValor())
-							.valorEsperado(anomalia.getValorEsperado())
-							.porcentual(anomalia.getPorcentagem())
-							.build();
-					BeanUtils.copyProperties(key, dado, "descricaoErro", "statusChamada",  "clienteId", "data", "quantidade","valorEsperado", "porcentual");
-					dto.add(dado);
-					log.info("\nAnomalia Identificada em erros no cliente "+clienteId+":\t" +"Valor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
-				}
-			} catch (IOException | URISyntaxException e) {
-				e.printStackTrace();
-			}});
+				if(value.size() > 10) {
+					ValorAnomalia anomalia;
+					try {
+						int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
+						anomalia = identificadorAnomalias(values);
+						if(anomalia != null) {
+							AnomaliaOutputDtoErros dado = AnomaliaOutputDtoErros.builder()
+									.descricaoErro(key.getDescricaoErro())
+									.statusChamada(key.getStatusChamada())
+									.clienteId(clienteId)
+									.data(fimMinuto)
+									.quantidade(anomalia.getValor())
+									.valorEsperado(anomalia.getValorEsperado())
+									.porcentual(anomalia.getPorcentagem())
+									.build();
+							BeanUtils.copyProperties(key, dado, "descricaoErro", "statusChamada",  "clienteId", "data", "quantidade","valorEsperado", "porcentual");
+							dto.add(dado);
+							log.info("\nAnomalia Identificada em erros no cliente "+clienteId+":\t" +"Valor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
+						}
+					} catch (IOException | URISyntaxException e) {
+						e.printStackTrace();
+			}}});
 		}
 		return dto;
 	}
@@ -186,27 +189,28 @@ public class AnomaliaService {
 		List<AnomaliaOutputDtoNumeros> dto = new ArrayList<>();
 		if(estatisticas.size() != 0) {
 			estatisticas.forEach((key, value) -> {
-			ValorAnomalia anomalia;
-			try {
-				int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
-				anomalia = identificadorAnomalias(values);
-				if(anomalia != null) {
-					AnomaliaOutputDtoNumeros dado = AnomaliaOutputDtoNumeros.builder()
-							.clienteId(clienteId)
-							.data(fimMinuto)
-							.tipoEstatistica(tipoEstatistica)
-							.numero(key.getNumero())
-							.quantidade(anomalia.getValor())
-							.valorEsperado(anomalia.getValorEsperado())
-							.porcentual(anomalia.getPorcentagem())
-							.build();
-					BeanUtils.copyProperties(key, dado, "numeros","tipoEstatistica", "clienteId", "data", "quantidade","valorEsperado", "porcentual");
-					dto.add(dado);
-					log.info("\nAnomalia Identificada em numeros no cliente "+clienteId+" na estatistica: "+tipoEstatistica+"\tValor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
-				}
-			} catch (IOException | URISyntaxException e) {
-				e.printStackTrace();
-			}});
+				if(value.size() > 10) {
+					ValorAnomalia anomalia;
+					try {
+						int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
+						anomalia = identificadorAnomalias(values);
+						if(anomalia != null) {
+							AnomaliaOutputDtoNumeros dado = AnomaliaOutputDtoNumeros.builder()
+									.clienteId(clienteId)
+									.data(fimMinuto)
+									.tipoEstatistica(tipoEstatistica)
+									.numero(key.getNumero())
+									.quantidade(anomalia.getValor())
+									.valorEsperado(anomalia.getValorEsperado())
+									.porcentual(anomalia.getPorcentagem())
+									.build();
+							BeanUtils.copyProperties(key, dado, "numeros","tipoEstatistica", "clienteId", "data", "quantidade","valorEsperado", "porcentual");
+							dto.add(dado);
+							log.info("\nAnomalia Identificada em numeros no cliente "+clienteId+" na estatistica: "+tipoEstatistica+"\tValor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
+						}
+					} catch (IOException | URISyntaxException e) {
+						e.printStackTrace();
+			}}});
 		}
 		return dto;
 	}
