@@ -52,9 +52,7 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 					.regiao(e.getRegiao())
 					.unidadeAtendimento(e.getUnidadeAtendimento()).build();
 				
-			ArrayList<EstatisticaDiscador> t = new ArrayList<>();
-			t.add(e);
-			dados.put(filtro, t);
+			dados.put(filtro, new ArrayList<>());
 			
 			Query queryTotal = new Query();
 			queryTotal.addCriteria(new Criteria("tipoEstatistica").is(tipoEstatistica).and("clienteId").is(clienteId)
@@ -90,9 +88,7 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 					.regiao(e.getRegiao())
 					.unidadeAtendimento(e.getUnidadeAtendimento()).build();
 				
-			ArrayList<OutrosErros> t = new ArrayList<>();
-			t.add(e);
-			dados.put(filtro, t);
+			dados.put(filtro, new ArrayList<>());
 			
 			Query queryTotal = new Query();
 			queryTotal.addCriteria(new Criteria("clienteId").is(clienteId)
@@ -141,10 +137,8 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 					.operadora(e.getOperadora())
 					.regiao(e.getRegiao())
 					.unidadeAtendimento(e.getUnidadeAtendimento()).build();
-				
-			ArrayList<Numeros> t = new ArrayList<>();
-			t.add(e);
-			dados.put(filtro, t);
+			
+			dados.put(filtro, new ArrayList<>());
 			
 			Query queryTotal = new Query();
 			queryTotal.addCriteria(new Criteria("tipoEstatistica").is(tipoEstatistica).and("clienteId").is(clienteId)
