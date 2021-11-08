@@ -58,7 +58,7 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 			queryTotal.addCriteria(new Criteria("tipoEstatistica").is(tipoEstatistica).and("clienteId").is(clienteId)
 					.and("data").lte(dataFinal)).with(Sort.by(Sort.Direction.DESC, "data")).limit(100);
 			queryTotal.addCriteria(FiltroPipeline.definirFiltroBuscaEstatisticasValores(filtro));
-			List<EstatisticaDiscador> estatisticas = mongoTemplate.find(query,EstatisticaDiscador.class ,nomeDaTabelaData);
+			List<EstatisticaDiscador> estatisticas = mongoTemplate.find(queryTotal,EstatisticaDiscador.class ,nomeDaTabelaData);
 			Collections.reverse(estatisticas);
 			dados.get(filtro).addAll(estatisticas);
 		}
@@ -94,7 +94,7 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 			queryTotal.addCriteria(new Criteria("clienteId").is(clienteId)
 					.and("data").lte(dataFinal)).with(Sort.by(Sort.Direction.DESC, "data")).limit(100);
 			queryTotal.addCriteria(FiltroPipeline.definirFiltroBuscaEstatisticasValores(filtro));
-			List<OutrosErros> estatisticas = mongoTemplate.find(query,OutrosErros.class ,nomeDaTabelaData);
+			List<OutrosErros> estatisticas = mongoTemplate.find(queryTotal,OutrosErros.class ,nomeDaTabelaData);
 			Collections.reverse(estatisticas);
 			dados.get(filtro).addAll(estatisticas);
 		}
@@ -145,7 +145,7 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 					.and("data").lte(dataFinal)).with(Sort.by(Sort.Direction.DESC, "data")).limit(100);
 			
 			queryTotal.addCriteria(FiltroPipeline.definirFiltroBuscaEstatisticasValores(filtro));
-			List<Numeros> estatisticas = mongoTemplate.find(query,Numeros.class ,nomeDaTabelaData);
+			List<Numeros> estatisticas = mongoTemplate.find(queryTotal,Numeros.class ,nomeDaTabelaData);
 			Collections.reverse(estatisticas);
 			dados.get(filtro).addAll(estatisticas);
 		}
