@@ -98,8 +98,6 @@ public class AnomaliaService {
 		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas", nomeCollectionEstatistica), nomeCollectionAnomalia);
 		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_desconectadas_discador", nomeCollectionEstatistica), nomeCollectionAnomalia);
 		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas_com_mais_de_30_segundos_desc_origem", nomeCollectionEstatistica), nomeCollectionAnomalia);
-	//	repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_com_segundo_desc_destino", nomeCollectionEstatistica), nomeCollectionAnomalia);
-	//	repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_com_segundo_desc_origem", nomeCollectionEstatistica), nomeCollectionAnomalia);
 		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "max_caps_sainte", nomeCollectionEstatistica), nomeCollectionAnomalia);
 		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_ddd", nomeCollectionEstatistica), nomeCollectionAnomalia);
 		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "estatistica_acd", nomeCollectionEstatistica), nomeCollectionAnomalia);
@@ -111,12 +109,12 @@ public class AnomaliaService {
 		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_recebidas", nomeCollectionEstatistica), nomeCollectionAnomalia);
 		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_atendidas", nomeCollectionEstatistica), nomeCollectionAnomalia);
 		
-		repository.salvarErros(obterEstatisticaErros(clienteId, inicioMinuto, fimMinuto,  nomeCollectionErros), nomeCollectionAnomaliaErros);
+		repository.salvarErros(obterEstatisticaErros(clienteId, inicioMinuto, fimMinuto,  nomeCollectionErros), nomeCollectionAnomalia);
 		
-		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numeros_discados", nomeCollectionNumeros), nomeCollectionAnomaliaNumeros);
-		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numeros_completados", nomeCollectionNumeros), nomeCollectionAnomaliaNumeros);
-		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numero_desc_destino", nomeCollectionNumeros), nomeCollectionAnomaliaNumeros);
-		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numero_desc_origem", nomeCollectionNumeros), nomeCollectionAnomaliaNumeros);
+		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numeros_discados", nomeCollectionNumeros), nomeCollectionAnomalia);
+		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numeros_completados", nomeCollectionNumeros), nomeCollectionAnomalia);
+		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numero_desc_destino", nomeCollectionNumeros), nomeCollectionAnomalia);
+		repository.salvarNumeros(obterEstatisticaNumeros(clienteId, inicioMinuto, fimMinuto, "numero_desc_origem", nomeCollectionNumeros), nomeCollectionAnomalia);
 		
 		
 	}
