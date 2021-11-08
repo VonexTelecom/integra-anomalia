@@ -224,7 +224,7 @@ public class AnomaliaService {
 			
 			for (String valor : resultado.keySet()) {
 				Integer valorInt = Integer.valueOf(valor);
-				if(valorInt == (values.length) && values.length > 10) {
+				if(valorInt == (values.length) && values.length > 90) {
 					BigDecimal valorBig = BigDecimal.valueOf(Double.valueOf(values[valorInt.intValue()-1]));
 					BigDecimal valorEsperadoBig = BigDecimal.valueOf(Double.valueOf(resultado.get(valor)));
 					BigDecimal diferenca = valorBig.subtract(valorEsperadoBig);
