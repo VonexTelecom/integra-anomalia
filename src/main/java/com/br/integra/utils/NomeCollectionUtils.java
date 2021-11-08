@@ -16,7 +16,7 @@ public class NomeCollectionUtils {
 	}
 	public static String nomeCollectionErros(Integer clienteId, LocalDate dia) {
 		String diaTabela = dia.format(DateTimeFormatter.ISO_LOCAL_DATE).replace("-", "");
-		String nomeTabela = "NumerosDiscados"+clienteId+"Dia" + diaTabela;
+		String nomeTabela = "OutrosErros"+clienteId+"Dia" + diaTabela;
 		return nomeTabela;
 	}
 	

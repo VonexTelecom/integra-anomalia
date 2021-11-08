@@ -72,7 +72,6 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 		query.addCriteria(new Criteria("clienteId").is(clienteId)
 				.and("data").is(dataFinal));
 		List<OutrosErros> dado = mongoTemplate.find(query,OutrosErros.class ,nomeDaTabelaData);
-		System.out.println(dado);
 		HashMap<FiltroEstatisticaErros, ArrayList<OutrosErros>> dados = new HashMap<FiltroEstatisticaErros, ArrayList<OutrosErros>>(); 
 		for(OutrosErros e : dado) {
 			FiltroEstatisticaErros filtro = FiltroEstatisticaErros.builder()
