@@ -235,6 +235,10 @@ public class AnomaliaService {
 								.valor(valorBig)
 								.valorEsperado(valorEsperadoBig)
 								.porcentagem((diferenca.multiply(BigDecimal.valueOf(100)).divide(valorBig, 2, RoundingMode.HALF_UP))).build();
+						
+						if(valorBig.compareTo(valorEsperadoBig) < 0 ) {
+							valorAnomalia.setPorcentagem(valorAnomalia.getPorcentagem().negate());
+						}
 						return valorAnomalia;												
 					}
 				}
