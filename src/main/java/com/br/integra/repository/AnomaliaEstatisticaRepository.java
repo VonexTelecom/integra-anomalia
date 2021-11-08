@@ -92,7 +92,7 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 			
 			Query queryTotal = new Query();
 			queryTotal.addCriteria(new Criteria("clienteId").is(clienteId)
-					.and("data").lte(dataFinal)).limit(100);
+					.and("data").lte(dataFinal)).with(Sort.by(Sort.Direction.DESC, "data")).limit(100);
 			queryTotal.addCriteria(FiltroPipeline.definirFiltroBuscaEstatisticasValores(filtro));
 			List<OutrosErros> estatisticas = mongoTemplate.find(queryTotal,OutrosErros.class ,nomeDaTabelaData);
 			Collections.reverse(estatisticas);
