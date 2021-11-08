@@ -6,7 +6,6 @@ import java.math.RoundingMode;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -229,11 +228,14 @@ public class AnomaliaService {
 				if(valorInt == (values.length) && values.length > 10) {
 					BigDecimal valorBig = BigDecimal.valueOf(Double.valueOf(values[valorInt.intValue()-1]));
 					BigDecimal valorEsperadoBig = BigDecimal.valueOf(Double.valueOf(resultado.get(valor)));
-					valorAnomalia = ValorAnomalia.builder()
-							.valor(valorBig)
-							.valorEsperado(valorEsperadoBig)
-							.porcentagem((valorEsperadoBig.multiply(BigDecimal.valueOf(100)).divide(valorBig, 2, RoundingMode.HALF_UP))).build();
-					if(valorBig.compareTo(valorEsperadoBig) != 0) {
+					BigDecimal diferenca = valorBig.subtract(valorEsperadoBig);
+					if(diferenca.compareTo(BigDecimal.ZERO) < 0) {
+						diferenca = diferenca.negate();
+					}else if(diferenca.compareTo(BigDecimal.ZERO) != 0) {
+						valorAnomalia = ValorAnomalia.builder()
+								.valor(valorBig)
+								.valorEsperado(valorEsperadoBig)
+								.porcentagem((diferenca.multiply(BigDecimal.valueOf(100)).divide(valorBig, 2, RoundingMode.HALF_UP))).build();
 						return valorAnomalia;												
 					}
 				}
