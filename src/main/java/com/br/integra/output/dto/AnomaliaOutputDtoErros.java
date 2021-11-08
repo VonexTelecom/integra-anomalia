@@ -18,6 +18,7 @@ public class AnomaliaOutputDtoErros {
 	private BigDecimal porcentual;
 	private BigDecimal quantidade;
 	private BigDecimal valorEsperado;
+	private String tipoEstatistica;
 	private String descricaoErro;
 	private String statusChamada;
 	private String modalidade;

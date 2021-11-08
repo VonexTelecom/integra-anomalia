@@ -70,8 +70,9 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 		Query query = new Query();
 		
 		query.addCriteria(new Criteria("clienteId").is(clienteId)
-				.and("data").is(dataFinal)).with(Sort.by(Sort.Direction.DESC, "data"));
+				.and("data").is(dataFinal));
 		List<OutrosErros> dado = mongoTemplate.find(query,OutrosErros.class ,nomeDaTabelaData);
+		System.out.println(dado);
 		HashMap<FiltroEstatisticaErros, ArrayList<OutrosErros>> dados = new HashMap<FiltroEstatisticaErros, ArrayList<OutrosErros>>(); 
 		for(OutrosErros e : dado) {
 			FiltroEstatisticaErros filtro = FiltroEstatisticaErros.builder()
@@ -92,7 +93,7 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 			
 			Query queryTotal = new Query();
 			queryTotal.addCriteria(new Criteria("clienteId").is(clienteId)
-					.and("data").lte(dataFinal)).with(Sort.by(Sort.Direction.DESC, "data")).limit(100);
+					.and("data").lte(dataFinal)).limit(100);
 			queryTotal.addCriteria(FiltroPipeline.definirFiltroBuscaEstatisticasValores(filtro));
 			List<OutrosErros> estatisticas = mongoTemplate.find(queryTotal,OutrosErros.class ,nomeDaTabelaData);
 			Collections.reverse(estatisticas);
@@ -119,7 +120,7 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 		Query query = new Query();
 		
 		query.addCriteria(new Criteria("tipoEstatistica").is(tipoEstatistica).and("clienteId").is(clienteId)
-				.and("data").is(dataFinal)).with(Sort.by(Sort.Direction.DESC, "data"));
+				.and("data").is(dataFinal));
 		
 		List<Numeros> dado = mongoTemplate.find(query,Numeros.class ,nomeDaTabelaData);
 		

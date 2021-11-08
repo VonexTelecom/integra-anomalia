@@ -164,6 +164,7 @@ public class AnomaliaService {
 							AnomaliaOutputDtoErros dado = AnomaliaOutputDtoErros.builder()
 									.descricaoErro(key.getDescricaoErro())
 									.statusChamada(key.getStatusChamada())
+									.tipoEstatistica("outrosErros")
 									.clienteId(clienteId)
 									.data(fimMinuto)
 									.quantidade(anomalia.getValor())
