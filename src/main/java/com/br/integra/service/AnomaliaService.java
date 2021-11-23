@@ -86,15 +86,9 @@ public class AnomaliaService {
 	
 	public void estatisticaPorMinuto(Integer clienteId, LocalDateTime inicioMinuto, LocalDateTime fimMinuto) throws IOException, URISyntaxException {
 		String nomeCollectionAnomalia = NomeCollectionUtils.nomeCollectionAnomalia(clienteId);
-		String nomeCollectionAnomaliaErros = NomeCollectionUtils.nomeCollectionAnomaliaErros(clienteId);
-		String nomeCollectionAnomaliaNumeros = NomeCollectionUtils.nomeCollectionAnomaliaNumeros(clienteId);
-		
-		
-		String nomeCollectionErros = NomeCollectionUtils.nomeCollectionErros(clienteId, fimMinuto.toLocalDate());
-		String nomeCollectionNumeros = NomeCollectionUtils.nomeCollectionNumeros(clienteId, fimMinuto.toLocalDate());
 		String nomeCollectionEstatistica = NomeCollectionUtils.nomeCollection(clienteId, fimMinuto.toLocalDate());
 		
-		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_completadas", nomeCollectionEstatistica), nomeCollectionAnomalia);
+		repository.salvar(obterEstatistica(clienteId, inicioMinuto, fimMinuto, "chamadas_discadas", nomeCollectionEstatistica), nomeCollectionAnomalia);
 		
 	}
 	
