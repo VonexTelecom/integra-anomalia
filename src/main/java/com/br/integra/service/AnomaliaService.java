@@ -20,17 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.br.integra.filter.FiltroEstatistica;
-import com.br.integra.filter.FiltroEstatisticaErros;
-import com.br.integra.filter.FiltroEstatisticaNumeros;
 import com.br.integra.model.Cliente;
 import com.br.integra.model.EstatisticaDiscador;
-import com.br.integra.model.Numeros;
-import com.br.integra.model.OutrosErros;
 import com.br.integra.model.ProcessamentoEstatisticas;
 import com.br.integra.model.VariableObject;
 import com.br.integra.output.dto.AnomaliaOutputDto;
-import com.br.integra.output.dto.AnomaliaOutputDtoErros;
-import com.br.integra.output.dto.AnomaliaOutputDtoNumeros;
 import com.br.integra.output.dto.ValorAnomalia;
 import com.br.integra.repository.AnomaliaRepository;
 import com.br.integra.repository.ClienteRepository;
@@ -122,73 +116,7 @@ public class AnomaliaService {
 			}
 		return dto;
 	}
-	
-	public List<AnomaliaOutputDtoErros> obterEstatisticaErros(Integer clienteId, LocalDateTime inicioMinuto, LocalDateTime fimMinuto, String nomeCollection) throws IOException, URISyntaxException {
-		HashMap<FiltroEstatisticaErros, ArrayList<OutrosErros>>estatisticas = repository.findTipoEstatisticaErros(inicioMinuto, fimMinuto, clienteId, nomeCollection);
-		List<AnomaliaOutputDtoErros> dto = new ArrayList<>();
-		if(estatisticas.size() != 0) {
-			estatisticas.forEach((key, value) -> {
-				if(value.size() > 10) {
-					ValorAnomalia anomalia;
-					try {
-						int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
-						anomalia = identificadorAnomalias(values);
-						if(anomalia != null) {
-							AnomaliaOutputDtoErros dado = AnomaliaOutputDtoErros.builder()
-									.descricaoErro(key.getDescricaoErro())
-									.statusChamada(key.getStatusChamada())
-									.tipoEstatistica("outrosErros")
-									.clienteId(clienteId)
-									.data(fimMinuto)
-									.quantidade(anomalia.getValor())
-									.valorEsperado(anomalia.getValorEsperado())
-									.porcentual(anomalia.getPorcentagem())
-									.build();
-							BeanUtils.copyProperties(key, dado, "descricaoErro", "statusChamada",  "clienteId", "data", "quantidade","valorEsperado", "porcentual");
-							dto.add(dado);
-							log.info("\nAnomalia Identificada em erros no cliente "+clienteId+":\t" +"Valor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
-						}
-					} catch (IOException | URISyntaxException e) {
-						e.printStackTrace();
-			}}});
-		}
-		return dto;
-	}
-	
-	public List<AnomaliaOutputDtoNumeros> obterEstatisticaNumeros(Integer clienteId, LocalDateTime inicioMinuto, LocalDateTime fimMinuto, String tipoEstatistica, String nomeCollection) throws IOException, URISyntaxException {
-		HashMap<FiltroEstatisticaNumeros, ArrayList<Numeros>>estatisticas = repository.findTipoNumeros(inicioMinuto, fimMinuto,  tipoEstatistica, clienteId,nomeCollection);
-		List<AnomaliaOutputDtoNumeros> dto = new ArrayList<>();
-		if(estatisticas.size() != 0) {
-			estatisticas.forEach((key, value) -> {
-				if(value.size() > 10) {
-					ValorAnomalia anomalia;
-					try {
-						int[] values = value.stream().map(e -> e.getQuantidade().intValue()).collect(Collectors.toList()).stream().mapToInt(Integer :: intValue).toArray();
-						anomalia = identificadorAnomalias(values);
-						if(anomalia != null) {
-							AnomaliaOutputDtoNumeros dado = AnomaliaOutputDtoNumeros.builder()
-									.clienteId(clienteId)
-									.data(fimMinuto)
-									.tipoEstatistica(tipoEstatistica)
-									.numero(key.getNumero())
-									.quantidade(anomalia.getValor())
-									.valorEsperado(anomalia.getValorEsperado())
-									.porcentual(anomalia.getPorcentagem())
-									.build();
-							BeanUtils.copyProperties(key, dado, "numeros","tipoEstatistica", "clienteId", "data", "quantidade","valorEsperado", "porcentual");
-							dto.add(dado);
-							log.info("\nAnomalia Identificada em numeros no cliente "+clienteId+" na estatistica: "+tipoEstatistica+"\tValor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
-						}
-					} catch (IOException | URISyntaxException e) {
-						e.printStackTrace();
-			}}});
-		}
-		return dto;
-	}
-	
-	
-	
-	
+		
 	
 	public ValorAnomalia identificadorAnomalias(int[] values) throws IOException, URISyntaxException {
 		ValorAnomalia valorAnomalia = new ValorAnomalia();
