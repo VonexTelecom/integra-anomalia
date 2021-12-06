@@ -1,5 +1,6 @@
 package com.br.integra.repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +24,8 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 	
 	@Autowired
 	private MongoTemplate mongoTemplate;
+	
+	private final Long minimo = 50L; 
 	
 	@Override
 	public HashMap<FiltroEstatistica, ArrayList<EstatisticaDiscador>> findTipoEstatistica(LocalDateTime dataInicial, LocalDateTime dataFinal, String tipoEstatistica, Integer clienteId, String nomeDaTabelaData) {
@@ -62,9 +65,11 @@ public class AnomaliaEstatisticaRepository implements AnomaliaRepository{
 	@Override
 	public void salvar(List<AnomaliaOutputDto> anomalia, String nomeDaTabela) {
 		if(anomalia != null && anomalia.size() != 0) {
+			
 			anomalia.forEach( a -> {
-				if(a.getQuantidade().compareTo(a.getValorEsperado())>100 ||
-						a.getQuantidade().compareTo(a.getValorEsperado())<100){
+			BigDecimal valor =	a.getQuantidade().subtract(a.getValorEsperado());
+				if(a.getQuantidade().compareTo(a.getValorEsperado()) <0 &&
+						  valor.compareTo(BigDecimal.valueOf(minimo))>0){
 					mongoTemplate.save(a, nomeDaTabela);		
 				}
 			});
