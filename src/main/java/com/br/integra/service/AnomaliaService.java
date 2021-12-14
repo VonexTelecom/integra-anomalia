@@ -106,6 +106,7 @@ public class AnomaliaService {
 									.valorEsperado(anomalia.getValorEsperado())
 									.porcentual(anomalia.getPorcentagem())
 									.build();
+							
 							BeanUtils.copyProperties(key, dado, "tipoEstatistica", "clienteId", "data", "quantidade","valorEsperado", "porcentual");
 							dto.add(dado);
 							log.info("\nAnomalia Identificada no cliente "+clienteId+" na estatistica: "+tipoEstatistica +"\tValor: "+ dado.getQuantidade()+ "\tValor Esperado: "+ dado.getValorEsperado()+ "\tPorcentagem: "+ dado.getPorcentual());
@@ -122,16 +123,16 @@ public class AnomaliaService {
 		ValorAnomalia valorAnomalia = new ValorAnomalia();
 		if(values.length != 0) {
 			HashMap<String, String> resultado = mean(values);
-			
 			for (String valor : resultado.keySet()) {
 				Integer valorInt = Integer.valueOf(valor);
-				if(valorInt == (values.length) && values.length > 90) {
+				if(valorInt == (values.length) && values.length > 10) {
 					BigDecimal valorBig = BigDecimal.valueOf(Double.valueOf(values[valorInt.intValue()-1]));
 					BigDecimal valorEsperadoBig = BigDecimal.valueOf(Double.valueOf(resultado.get(valor)));
 					BigDecimal diferenca = valorBig.subtract(valorEsperadoBig);
 					if(diferenca.compareTo(BigDecimal.ZERO) < 0) {
 						diferenca = diferenca.negate();
-					}else if(diferenca.compareTo(BigDecimal.ZERO) != 0) {
+					}
+					if(diferenca.compareTo(BigDecimal.ZERO) != 0) {
 						valorAnomalia = ValorAnomalia.builder()
 								.valor(valorBig)
 								.valorEsperado(valorEsperadoBig)
@@ -149,9 +150,6 @@ public class AnomaliaService {
 		return null;
 
 	}
-	
-	
-	
 	
     public HashMap<String,String> mean(int[] values) throws IOException, URISyntaxException {
     RCode code = RCode.create();
@@ -187,7 +185,6 @@ public class AnomaliaService {
     	String json = jsonMapper.writeValueAsString(node);
     	
     	VariableObject object = jsonMapper.readValue(json, VariableObject.class);
-    	
     	HashMap<String, String> valor = new HashMap<String, String>();
     	
     	Integer quantidade = object.getVariable().get(0).getV().size();
