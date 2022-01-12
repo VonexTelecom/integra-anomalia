@@ -17,7 +17,7 @@ pipeline {
         }*/
          stage ('Imagem docker') {
             steps {
-                sh 'docker build . -t vonex/anomalia:${BUILD_NUMBER}'
+                sh 'docker build . -t vonex/integra_anomalia:${BUILD_NUMBER}'
             }
         }
         stage ('run app') {
