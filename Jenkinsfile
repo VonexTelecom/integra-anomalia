@@ -10,9 +10,21 @@ pipeline {
                 sh ' mvn clean install -DskipTests'
             }
         }
+        /*stage ('Test') {
+            steps {    
+                sh ' mvn test'
+            }
+        }*/
+         stage ('Imagem docker') {
+            steps {
+                sh 'docker build . -t vonex/anomalia:${BUILD_NUMBER}'
+            }
+        }
         stage ('run app') {
             steps {
-                sh 'java -jar -Xmx512M target/integra-anomalia-0.0.1-SNAPSHOT.jar'
+           		sh ' docker stop integra-anomalia' 
+                sh ' docker rm integra-anomalia'	
+                sh ' docker container run --network intranet -h integra-anomalia -d --name integra-anomalia -p 8089:8089 vonex/integra_anomalia:${BUILD_NUMBER}'
             }
         }
       
