@@ -22,7 +22,7 @@ pipeline {
         }
         stage ('run app') {
             steps {
-           		/sh ' docker stop integra-anomalia' 
+                //sh ' docker stop integra-anomalia' 
                 //sh ' docker rm integra-anomalia'	
                 sh ' docker container run --network intranet -h integra-anomalia -d --name integra-anomalia -p 8089:8089 vonex/integra_anomalia:${BUILD_NUMBER}'
             }
