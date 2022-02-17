@@ -24,7 +24,6 @@ pipeline {
             steps {
                 //sh ' docker stop integra-anomalia' 
                 //sh ' docker rm integra-anomalia'
-                sh 'echo $PATH'
                 sh ' docker container run -d --name integra-anomalia -p 8096:8096 vonex/api_integra_anomalia:${BUILD_NUMBER}'
             }
         }        
