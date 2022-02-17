@@ -156,6 +156,7 @@ public class AnomaliaService {
     RCaller caller = RCaller.create();
     
     code.R_require("forecast");
+    code.R_source("/usr/lib64/R/bin/");
     code.addIntArray("x", values);
     
 
