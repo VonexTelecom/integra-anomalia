@@ -7,6 +7,8 @@ RUN date
 
 VOLUME /usr/bin/Rscript
 
+CMD chmod 777 /usr/bin/Rscript
+
 EXPOSE 8096
 
 ARG JAR_FILE=target/*.jar
