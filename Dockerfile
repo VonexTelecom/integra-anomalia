@@ -9,7 +9,8 @@ RUN date
 
 ##VOLUME /usr/lib64/R/bin/:/usr/bin/
 
-ADD /usr/lib64/R/bin/Rscript /usr/bin/
+RUN cp  /usr/lib64/R/bin/Rscript /usr/bin/
+##ADD /usr/lib64/R/bin/Rscript /usr/bin/
 
 ##CMD chmod 777 /usr/bin/Rscript
 
