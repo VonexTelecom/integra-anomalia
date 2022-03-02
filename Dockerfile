@@ -3,7 +3,7 @@ FROM openjdk:8-jdk-alpine
 ENV TZ='America/Sao_Paulo'
 RUN date
 
-VOLUME /tmp
+##VOLUME /tmp
 
 VOLUME /usr/bin/Rscript:/usr/bin/Rscript
 
