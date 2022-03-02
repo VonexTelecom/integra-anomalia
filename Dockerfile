@@ -9,7 +9,7 @@ RUN date
 
 ##VOLUME /usr/lib64/R/bin/:/usr/bin/
 
-RUN cp ./hs_err_pid3442.log /usr/bin/
+RUN cp /home/jsoares/hs_err_pid3442.log /usr/bin/
 ##ADD /usr/lib64/R/bin/Rscript /usr/bin/
 
 ##CMD chmod 777 /usr/bin/Rscript
