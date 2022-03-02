@@ -1,6 +1,7 @@
 FROM openjdk:8-jdk-alpine
 
-ENV TZ='GMT-3'
+ENV TZ='America/Sao_Paulo'
+RUN date
 
 VOLUME /tmp
 
