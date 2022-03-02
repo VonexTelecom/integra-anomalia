@@ -5,6 +5,8 @@ RUN date
 
 VOLUME /tmp
 
+VOLUME /usr/bin/Rscript:/usr/bin/Rscript:rw
+
 EXPOSE 8096
 
 ARG JAR_FILE=target/*.jar
