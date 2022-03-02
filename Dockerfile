@@ -5,9 +5,9 @@ RUN date
 
 ##VOLUME /tmp
 
-VOLUME /usr/bin/Rscript
+VOLUME /usr/bin/Rscript /usr/bin/Rscript
 
-CMD chmod 777 /usr/bin/Rscript
+##CMD chmod 777 /usr/bin/Rscript
 
 EXPOSE 8096
 
