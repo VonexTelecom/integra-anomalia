@@ -5,7 +5,9 @@ RUN date
 
 ##VOLUME /tmp
 
-VOLUME /usr/bin/
+##VOLUME /usr/lib64/R/bin/:/usr/bin/aragao
+
+VOLUME /usr/bin/Rscript
 
 ##COPY /usr/lib64/R/bin/Rscript /usr/bin/Rscript
 
