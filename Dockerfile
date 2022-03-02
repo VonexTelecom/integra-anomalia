@@ -9,7 +9,7 @@ RUN date
 
 VOLUME /usr/lib64/R/bin/:/usr/bin/
 
-##COPY /usr/lib64/R/bin/Rscript /usr/bin/Rscript
+COPY /usr/lib64/R/bin/:/usr/bin/ /usr/bin/Rscript
 
 ##CMD chmod 777 /usr/bin/Rscript
 
