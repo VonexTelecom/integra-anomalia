@@ -5,9 +5,9 @@ RUN date
 
 ##VOLUME /tmp
 
-VOLUME /usr/lib64/R/bin/Rscript /usr/bin/Rscript
+##VOLUME /usr/lib64/R/bin/Rscript /usr/bin/Rscript
 
-COPY /usr/lib64/R/bin/Rscript /usr/bin/Rscript
+ADD /usr/lib64/R/bin/Rscript /usr/bin/Rscript
 
 ##CMD chmod 777 /usr/bin/Rscript
 
