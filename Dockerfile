@@ -5,7 +5,7 @@ RUN date
 
 VOLUME /tmp
 
-VOLUME /usr/bin/Rscript:/usr/bin/Rscript:rw
+VOLUME /usr/lib64/R/bin/:/usr/bin/
 
 EXPOSE 8096
 
