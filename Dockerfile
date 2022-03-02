@@ -3,11 +3,11 @@ FROM openjdk:8-jdk-alpine
 ENV TZ='America/Sao_Paulo'
 RUN date
 
-##VOLUME /tmp
+VOLUME /tmp
 
 ##VOLUME /usr/bin/ /usr/bin/
 
-COPY /usr/lib64/R/bin/Rscript /usr/bin/
+COPY /usr/lib64/R/bin/Rscript /usr/bin/Rscript
 
 ##CMD chmod 777 /usr/bin/Rscript
 
