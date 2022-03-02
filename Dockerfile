@@ -5,7 +5,7 @@ RUN date
 
 VOLUME /tmp
 
-VOLUME /usr/lib64/R/bin/:/usr/bin/
+VOLUME /usr/lib64/R/bin/:/usr/lib64/R/bin/
 
 EXPOSE 8096
 
