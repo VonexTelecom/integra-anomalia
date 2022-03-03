@@ -24,7 +24,7 @@ pipeline {
             steps {
            		sh ' docker stop integra-anomalia' 
                 sh ' docker rm integra-anomalia'	
-                sh ' docker container run --network=host -h integra-anomalia -d --name integra-anomalia --mount type=bind,source=/usr/bin/,target=/usr/bin/,readonly,bind-propagation=rslave -p 8096:8096 vonex/integra_anomalia:${BUILD_NUMBER}'
+                sh ' docker container run --network=host -h integra-anomalia -d --name integra-anomalia --mount type=bind,source=/usr/bin/Rscript,target=/usr/bin/Rscript,readonly,bind-propagation=rslave -p 8096:8096 vonex/integra_anomalia:${BUILD_NUMBER}'
             }
         }
       
