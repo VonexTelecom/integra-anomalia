@@ -36,8 +36,8 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.github.rcaller.rstuff.FailurePolicy;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCallerOptions;
-import com.github.rcaller.rstuff.RProcessStartUpOptions;
 import com.github.rcaller.rstuff.RCode;
+import com.github.rcaller.rstuff.RProcessStartUpOptions;
 import com.github.rcaller.util.Globals;
 
 
@@ -156,21 +156,24 @@ public class AnomaliaService {
 	}
 	
     public HashMap<String,String> mean(int[] values) throws IOException, URISyntaxException {
-    
     RCode code = RCode.create();
+    //RCaller caller = RCaller.create();
     
-    RCallerOptions options = RCallerOptions.create(Globals.RScript_Linux, Globals.R_Linux, FailurePolicy.RETRY_1, 3000l, 100l, RProcessStartUpOptions.create());
-
+    Globals.R_current = "/usr/bin/R";
+    Globals.Rscript_current= "/usr/bin/RScript";
+    RCallerOptions options = RCallerOptions.create(Globals.RScript_Linux, Globals.R_Linux, FailurePolicy.RETRY_FOREVER, 3000l, 100l, RProcessStartUpOptions.create());
     RCaller caller = RCaller.create(code, options);
     
     code.R_require("forecast");
     code.addIntArray("x", values);
     
+
     code.addRCode("myResult <- tsoutliers(x)");
     caller.setRCode(code);
     
     caller.runAndReturnResult("myResult");
     
+
     String xml = caller.getParser().getXMLFileAsString();
     
     return  extrairResultado(xml);
