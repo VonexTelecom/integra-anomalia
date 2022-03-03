@@ -1,15 +1,15 @@
 FROM openjdk:8-jdk-alpine
 
 ENV TZ='America/Sao_Paulo'
-RUN date
 
-VOLUME /tmp
+VOLUME /hostpipe
+	  ADD /usr/bin /hostpipe
 
 ##VOLUME /usr/lib64/R/bin/:/usr/bin/aragao
 
 ##VOLUME /usr/lib64/R/bin/:/usr/bin/
 
-##RUN cp /home/jsoares/hs_err_pid3442.log /usr/bin/
+##RUN cp /usr/bin/Rscript integra-anomalia:/usr/bin/
 ##ADD /usr/lib64/R/bin/Rscript /usr/bin/
 
 ##CMD chmod 777 /usr/bin/Rscript
