@@ -2,8 +2,7 @@ FROM openjdk:8-jdk-alpine
 
 ENV TZ='America/Sao_Paulo'
 
-VOLUME /hostpipe
-	  ADD /usr/bin /hostpipe
+VOLUME /tmp
 
 ##VOLUME /usr/lib64/R/bin/:/usr/bin/aragao
 
