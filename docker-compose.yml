@@ -5,9 +5,5 @@ services:
     image: vonex/integra_anomalia:${BUILD_NUMBER}
     networks:
       - intranet
-  app1:
-    build: ./app1/
-    volumes:
-     - ./usr/bin:/usr/bin
   intranet:
     external: true
