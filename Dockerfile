@@ -5,7 +5,7 @@ RUN date
 
 VOLUME /tmp
 
-##VOLUME /usr/bin
+##VOLUME /usr/lib64/R/bin/:/usr/bin/aragao
 
 ##VOLUME /usr/lib64/R/bin/:/usr/bin/
 
@@ -13,7 +13,6 @@ VOLUME /tmp
 ##ADD /usr/lib64/R/bin/Rscript /usr/bin/
 
 ##CMD chmod 777 /usr/bin/Rscript
-RUN mkdir -p /usr/lib64/R
 
 EXPOSE 8096
 
