@@ -22,11 +22,11 @@ pipeline {
         }
         stage ('Run docker') {
             steps {
-                sh ' docker stop integra-anomalia' 
-                sh ' docker rm integra-anomalia'
+                //sh ' docker stop integra-anomalia' 
+                //sh ' docker rm integra-anomalia'
                 sh ' docker container run --network=host -d --name integra-anomalia -v /usr/bin: -p 8096:8096 vonex/integra_anomalia:${BUILD_NUMBER}'
-                //sh ' docker cp /usr/bin/R integra-anomalia:/usr/bin'
-                //sh ' docker cp /usr/bin/Rscript integra-anomalia:/usr/bin'
+                sh ' docker cp /usr/bin/R integra-anomalia:/usr/bin'
+                sh ' docker cp /usr/bin/Rscript integra-anomalia:/usr/bin'
                 //sh ' cd /usr/bin/'
                 //sh ' Rscript --help'
             }
