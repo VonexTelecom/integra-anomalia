@@ -27,6 +27,7 @@ pipeline {
                 sh ' docker container run --network=host -d --name integra-anomalia -p 8096:8096 vonex/integra_anomalia:${BUILD_NUMBER}'
                 sh ' docker cp /usr/bin/R integra-anomalia:/usr/bin'
                 sh ' docker cp /usr/bin/Rscript integra-anomalia:/usr/bin'
+                sh ' docker cp /usr/lib64/R integra-anomalia:/'
                 //sh ' cd /usr/bin/'
                 //sh ' Rscript --help'
             }
