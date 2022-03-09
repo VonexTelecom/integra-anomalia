@@ -19,7 +19,7 @@ pipeline {
             steps {
                 sh ' docker-compose stop integra-anomalia || true '
                 sh ' docker-compose rm integra-anomalia || true '
-                sh ' BUILD_NUMBER=${BUILD_NUMBER} docker-compose -f docker-compose.yml up --scale integra-anomalia=5 -d'
+                sh ' BUILD_NUMBER=${BUILD_NUMBER} docker-compose -f docker-compose.yml up --scale integra-anomalia=2 -d'
             }
         }        
     }
