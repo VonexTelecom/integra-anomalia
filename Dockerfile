@@ -5,7 +5,7 @@ RUN date
 
 ##VOLUME /tmp
 
-##VOLUME /usr/lib64/R/bin/:/usr/bin/aragao
+VOLUME /usr/bin:/usr/bin
 
 ##VOLUME /usr/lib64/R/bin/:/usr/bin/
 
