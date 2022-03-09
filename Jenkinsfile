@@ -28,7 +28,7 @@ pipeline {
                 sh ' docker cp /usr/bin/R integra-anomalia:/usr/bin'
                 sh ' docker cp /usr/bin/Rscript integra-anomalia:/usr/bin'
                 //sh ' docker mkdir /usr/lib64'
-                sh ' docker cp /usr/lib64/R integra-anomalia:/usr/lib64'
+                sh ' docker cp -rf /usr/lib64/R integra-anomalia:/usr/lib64'
                 //sh ' cd /usr/bin/'
                 //sh ' Rscript --help'
             }
