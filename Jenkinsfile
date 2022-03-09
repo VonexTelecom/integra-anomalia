@@ -9,7 +9,12 @@ pipeline {
             steps {    
                 sh ' mvn clean install -DskipTests'
             }
-        }     
+        }
+        /*stage ('Test') {
+            steps {    
+                sh ' mvn test'
+            }
+        }*/       
         stage ('Imagem docker') {
             steps {
                 sh 'docker build . -t vonex/integra_anomalia:${BUILD_NUMBER}'
@@ -17,9 +22,13 @@ pipeline {
         }
         stage ('Run docker') {
             steps {
-                sh ' docker-compose stop integra-anomalia || true '
-                sh ' docker-compose rm integra-anomalia || true '
-                sh ' BUILD_NUMBER=${BUILD_NUMBER} docker-compose -f docker-compose.yml up --scale integra-anomalia=2 -d'
+                //sh ' docker stop integra-anomalia' 
+                //sh ' docker rm integra-anomalia'
+                sh ' docker container run --network=host -d --name integra-anomalia -p 8096:8096 vonex/integra_anomalia:${BUILD_NUMBER}'
+                sh ' docker cp /usr/bin/R integra-anomalia:/usr/bin'
+                sh ' docker cp /usr/bin/Rscript integra-anomalia:/usr/bin'
+                //sh ' cd /usr/bin/'
+                //sh ' Rscript --help'
             }
         }        
     }
