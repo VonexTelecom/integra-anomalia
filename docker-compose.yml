@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  sms-rota:
+    image: vonex/integra_anomalia:${BUILD_NUMBER}
+    networks:
+      - intranet
+  tmp:
+    build: ./tmp/
+    volumes:
+     - ./usr/bin:/usr/bin
+  intranet:
+    external: true
